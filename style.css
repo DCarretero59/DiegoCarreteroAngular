@@ -1,0 +1,16 @@
+#info{
+    background-color: white;
+  bottom:0px;
+ overflow-x:hidden;
+ overflow-y:hidden;
+ 
+}
+
+.pull-right {
+  float: right !important;
+}
+
+h3{
+  font-family: sans-serif;
+  font-size: 30px;
+}

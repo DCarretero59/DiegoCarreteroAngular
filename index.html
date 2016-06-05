@@ -1,0 +1,145 @@
+<html ng-app="app">
+<head>
+	 <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="imagenes/favicon.png">
+	<title>USDA National Nutrient</title>
+	 <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	    <!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+     <link rel="stylesheet" href="style.css">    
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+	<script>
+      var app = angular.module('app',[]);
+      app.controller('getData', function($scope, $http) {
+        $scope.foods = JSON.parse(localStorage.getItem('foods'));
+        $scope.favorites = JSON.parse(localStorage.getItem('favorites'));
+
+        $scope.getFoods = function(){
+        	$http.get("http://api.nal.usda.gov/ndb/search/?format=json&q="+$scope.search+"&sort=n&max=25&offset=0&api_key=89vpCPAm6MRTrcOdWHlgIwUXgvpO1xjScWd2W81L").then(function(response){
+	          $scope.foods=response.data.list.item;
+	          var dataToStore = JSON.stringify($scope.foods);
+
+				localStorage.setItem("foods", dataToStore);
+
+	        });
+        }
+
+        $scope.addFavorite = function(f){
+
+		    var favorites = JSON.parse(localStorage.getItem("favorites"));
+		    if(favorites == null) favorites = [];
+		    favorites.push(f);
+		    localStorage.setItem("favorites", JSON.stringify(favorites));
+        	$scope.favorites = JSON.parse(localStorage.getItem('favorites'));
+        }
+
+        $scope.removeFavorite = function(f){
+
+		    var favorites = JSON.parse(localStorage.getItem("favorites"));
+		    if(favorites == null) favorites = [];
+			var index = favorites.indexOf(f);
+
+			    favorites.splice(index, 1);
+		    localStorage.setItem("favorites", JSON.stringify(favorites));
+        	$scope.favorites = JSON.parse(localStorage.getItem('favorites'));
+        }
+      });
+    </script>
+</head>
+<body background="imagenes/fondo1.png" ng-controller="getData">
+
+<div class="container" id="info">
+	<nav class="navbar navbar-default">
+	<div class="navbar-header" >
+        <img style="max-width:100px; margin-top: 1px;" src="imagenes/favicon.png">
+    
+	 </div>   
+	<div class=".navbar-right" class="pull-right" >
+		<img style="max-width:100px; margin-top: 1px;" src="imagenes/1.jpg" class="img-circle">
+		<img style="max-width:100px; margin-top: 1px;" src="imagenes/3.jpg" class="img-circle">
+		<img style="max-width:100px; margin-top: 1px;" src="imagenes/2.jpg" class="img-circle">
+		<img style="max-width:100px; margin-top: 1px;" src="imagenes/4.jpg" class="img-circle">
+		<img style="max-width:100px; margin-top: 1px;" src="imagenes/5.jpg" class="img-circle">
+       	
+	</div>
+	<div class="pull-right">
+		<p><h3> <strong>  National Nutrient Database. </strong></h3></p>
+    </div>
+    <div>
+      <center><a class="navbar-brand" data-toggle="modal" data-target="#favoriteModal">My Favorites</a></center>
+    </div>
+    </nav>
+   <section>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                     <div class="input-group">
+                        <input type="text" name="b" class="form-control" placeholder="Search food" ng-model="search">
+                        <span class="input-group-btn">
+                        <input class="btn btn-default" type="submit" value="Search" ng-click="getFoods()">
+                        </span>
+                     </div>
+                     <table class="table table-condensed">
+                     <thead>
+                       <tr class="success">
+	                     <th>NBNO</th>
+	                     <th>Name</th>
+                         <th>Food Group</th>
+                         <th></th>
+                       </tr>
+                    </thead>
+                    <tbody ng-repeat="f in foods">
+                         <tr>
+                          <td> {{f.ndbno}}</td>
+                         <td>{{f.name}}</td>
+                         <td>{{f.group}}</td>
+                         <td><a ng-click="addFavorite(f)"><span alt="favorito" class="glyphicon glyphicon-star-empty"></span></a>
+	                     <a href="report.html?ndbno={{f.ndbno}}" target="_blank"><span alt="borrar" class="glyphicon glyphicon-search"></span></a></td>
+	                     </tr>
+	                </tbody>
+                      </table>
+
+                   </div>
+                 </div>
+     </section>
+ </div>
+
+ <div class="modal fade" id="favoriteModal" tabindex="-1" role="dialog" aria-labelledby="favoriteLabel">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Favorite Foods</h4>
+        </div>
+        <div class="modal-body">
+                     <table class="table table-condensed">
+                     <thead>
+                       <tr class="success">
+	                     <th>NBNO</th>
+	                     <th>Name</th>
+                         <th>Food Group</th>
+                         <th></th>
+                       </tr>
+                    </thead>
+                    <tbody ng-repeat="f in favorites">
+                         <tr>
+                          <td> {{f.ndbno}}</td>
+                         <td>{{f.name}}</td>
+                         <td>{{f.group}}</td>
+                         <td><a  ng-click="removeFavorite(f)"><span alt="remove" class="glyphicon glyphicon-remove"></span></a>
+                       <a href="report.html?ndbno={{f.ndbno}}" target="_blank"><span alt="borrar" class="glyphicon glyphicon-search"></span></a></td>
+	                     </tr>
+	                </tbody>
+                      </table>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+</body>
+</html>
